@@ -63,7 +63,7 @@ async def on_ready():
 
 
 @tree.command(
-    name="creeridentite",
+    name="creeid",
     description="Créer ou modifier une carte d'identité"
 )
 async def creeridentite(
@@ -111,7 +111,7 @@ async def creeridentite(
 
 
 @tree.command(
-    name="identite",
+    name="id",
     description="Consulter une carte d'identité"
 )
 async def identite(
@@ -149,12 +149,10 @@ async def identite(
         )
         return
 
-    embed = discord.Embed(
-        title="🇩🇪 BUNDESREPUBLIK DEUTSCHLAND",
-        description="Carte d'identité officielle",
-        color=0x2b2d31
-    )
-
+embed = discord.Embed(
+    title="Carte d'identité",
+    color=0x2b2d31
+)
     embed.add_field(
         name="🎮 Pseudo Roblox",
         value=data[8],
