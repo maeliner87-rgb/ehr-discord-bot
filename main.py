@@ -217,17 +217,19 @@ async def identite(
 
     view = View()
 
-view.add_item(
-    Button(
-        label="Profil Roblox",
-        url=profil_url
-    )
-)
+    view = View()
 
-await interaction.response.send_message(
-    embed=embed,
-    view=view
-)
+    view.add_item(
+        Button(
+            label="Profil Roblox",
+            url=profil_url
+        )
+    )
+
+    await interaction.response.send_message(
+        embed=embed,
+        view=view
+    )
 
 
 TOKEN = os.getenv("TOKEN")
