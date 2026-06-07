@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS identites (
     sexe TEXT,
     nationalite TEXT,
     pseudo_roblox TEXT PRIMARY KEY,
-    salon_demande INTEGER,
+    salon_demande BIGINT,
     valide INTEGER DEFAULT 0
 )
 """)
