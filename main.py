@@ -63,8 +63,8 @@ async def on_ready():
 
 
 @tree.command(
-    name="creeid",
-    description="Créer ou modifier une carte d'identité"
+    name="créeid",
+    description="Créer une carte d'identité"
 )
 async def creeridentite(
     interaction: discord.Interaction,
@@ -112,7 +112,7 @@ async def creeridentite(
 
 @tree.command(
     name="id",
-    description="Consulter une carte d'identité"
+    description="Rechercher une carte d'identité"
 )
 async def identite(
     interaction: discord.Interaction,
