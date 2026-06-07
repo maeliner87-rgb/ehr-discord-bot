@@ -3,6 +3,7 @@ from discord import app_commands
 import sqlite3
 import os
 import aiohttp
+from discord.ui import View, Button
 
 intents = discord.Intents.default()
 
@@ -214,7 +215,19 @@ async def identite(
         text="Emergency Hamburg RP"
     )
 
-    await interaction.response.send_message(embed=embed)
+    view = View()
+
+view.add_item(
+    Button(
+        label="Profil Roblox",
+        url=profil_url
+    )
+)
+
+await interaction.response.send_message(
+    embed=embed,
+    view=view
+)
 
 
 TOKEN = os.getenv("TOKEN")
