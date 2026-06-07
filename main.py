@@ -9,11 +9,6 @@ intents = discord.Intents.default()
 
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
-
-import os
-
-if os.path.exists("identites.db"):
-    os.remove("identites.db")
     
 # Base de données
 conn = sqlite3.connect("identites.db")
@@ -227,8 +222,25 @@ async def identite(
         embed=embed,
         view=view
     )
+@tree.command(
+    name="accepterid",
+    description="Valider une carte d'identité"
+)
+async def accepterid(
+    interaction: discord.Interaction,
+    pseudo_roblox: str
+):
+    cursor.execute(
+        "UPDATE identites SET valide = 1 WHERE pseudo_roblox = ?",
+        (pseudo_roblox,)
+    )
 
+    conn.commit()
 
+    await interaction.response.send_message(
+        f"✅ Carte d'identité de {pseudo_roblox} validée."
+    )
+    
 TOKEN = os.getenv("TOKEN")
 
 client.run(TOKEN)
