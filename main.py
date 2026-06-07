@@ -180,15 +180,9 @@ async def identite(
     )
     
     embed.add_field(
-        name="Âge",
-        value=data[5],
-        inline=True
-    )
-
-    embed.add_field(
-        name="Sexe",
-        value=data[6],
-        inline=True
+        name="Âge et sexe",
+        value=f"{data[5]} • {data[6]}",
+        inline=False
     )
 
     embed.add_field(
