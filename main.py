@@ -14,7 +14,7 @@ cursor = conn.cursor()
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS identites (
-    pseudo TEXT PRIMARY KEY,
+    pseudo_discord TEXT PRIMARY KEY,
     nom TEXT,
     prenom TEXT,
     naissance TEXT,
@@ -31,14 +31,14 @@ conn.commit()
 @client.event
 async def on_ready():
     await tree.sync()
-    print(f"Connecté en tant que {client.user}")
+    print(f"✅ Connecté en tant que {client.user}")
 
 
 @tree.command(
-    name="createid",
+    name="creeridentite",
     description="Créer ou modifier une carte d'identité"
 )
-async def createid(
+async def creeridentite(
     interaction: discord.Interaction,
     pseudo_roblox: str,
     nom: str,
@@ -68,16 +68,16 @@ async def createid(
     conn.commit()
 
     await interaction.response.send_message(
-        "✅ Carte d'identité enregistrée avec succès.",
+        "✅ Votre carte d'identité a été enregistrée.",
         ephemeral=True
     )
 
 
 @tree.command(
-    name="id",
-    description="Rechercher une carte d'identité"
+    name="identite",
+    description="Consulter une carte d'identité"
 )
-async def rechercher(
+async def identite(
     interaction: discord.Interaction,
     pseudo_roblox: str
 ):
@@ -91,17 +91,18 @@ async def rechercher(
 
     if not data:
         await interaction.response.send_message(
-            "❌ Aucune carte trouvée pour ce pseudo Roblox."
+            "❌ Aucune carte d'identité trouvée."
         )
         return
 
     embed = discord.Embed(
-        title="🪪 CARTE D'IDENTITÉ",
+        title="🇩🇪 BUNDESREPUBLIK DEUTSCHLAND",
+        description="Carte d'identité officielle",
         color=0x2b2d31
     )
 
     embed.add_field(
-        name="Pseudo Roblox",
+        name="🎮 Pseudo Roblox",
         value=data[8],
         inline=False
     )
@@ -148,8 +149,13 @@ async def rechercher(
         inline=False
     )
 
+    embed.set_footer(
+        text="Emergency Hamburg RP"
+    )
+
     await interaction.response.send_message(embed=embed)
 
 
 TOKEN = os.getenv("TOKEN")
+
 client.run(TOKEN)
