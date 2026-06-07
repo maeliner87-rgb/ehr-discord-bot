@@ -316,9 +316,17 @@ async def listeid(interaction: discord.Interaction):
 
         embeds.append(embed)
 
-    await interaction.response.send_message(
-        embeds=embeds[:10]
-    )
+    for i in range(0, len(embeds), 10):
+        lot = embeds[i:i + 10]
+
+        if i == 0:
+            await interaction.response.send_message(
+                embeds=lot
+            )
+        else:
+            await interaction.followup.send(
+                embeds=lot
+            )
 
 
 @tree.command(
