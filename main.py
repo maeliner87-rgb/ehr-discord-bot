@@ -125,6 +125,21 @@ async def identite(
     )
 
     data = cursor.fetchone()
+    user_data = await verifier_pseudo_roblox(pseudo_roblox)
+if user_data is None:
+    await interaction.response.send_message(
+        "❌ Impossible de récupérer les informations Roblox."
+    )
+    return
+
+roblox_id = user_data["id"]
+
+avatar_url = (
+    f"https://www.roblox.com/headshot-thumbnail/image"
+    f"?userId={roblox_id}&width=420&height=420&format=png"
+)
+
+profil_url = f"https://www.roblox.com/users/{roblox_id}/profile"
 
     if not data:
         await interaction.response.send_message(
@@ -185,7 +200,13 @@ async def identite(
         value=data[7],
         inline=False
     )
+embed.set_thumbnail(url=avatar_url)
 
+embed.add_field(
+    name="🔗 Profil Roblox",
+    value=profil_url,
+    inline=False
+)
     embed.set_footer(
         text="Emergency Hamburg RP"
     )
