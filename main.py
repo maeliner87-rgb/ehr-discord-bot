@@ -124,30 +124,30 @@ async def identite(
         (pseudo_roblox,)
     )
 
-data = cursor.fetchone()
+    data = cursor.fetchone()
 
-user_data = await verifier_pseudo_roblox(pseudo_roblox)
+    user_data = await verifier_pseudo_roblox(pseudo_roblox)
 
-if user_data is None:
-    await interaction.response.send_message(
-        "❌ Impossible de récupérer les informations Roblox."
+    if user_data is None:
+        await interaction.response.send_message(
+            "❌ Impossible de récupérer les informations Roblox."
+        )
+        return
+
+    roblox_id = user_data["id"]
+
+    avatar_url = (
+        f"https://www.roblox.com/headshot-thumbnail/image"
+        f"?userId={roblox_id}&width=420&height=420&format=png"
     )
-    return
 
-roblox_id = user_data["id"]
+    profil_url = f"https://www.roblox.com/users/{roblox_id}/profile"
 
-avatar_url = (
-    f"https://www.roblox.com/headshot-thumbnail/image"
-    f"?userId={roblox_id}&width=420&height=420&format=png"
-)
-
-profil_url = f"https://www.roblox.com/users/{roblox_id}/profile"
-
-if not data:
-    await interaction.response.send_message(
-        "❌ Aucune carte d'identité trouvée."
-    )
-    return
+    if not data:
+        await interaction.response.send_message(
+            "❌ Aucune carte d'identité trouvée."
+        )
+        return
 
     embed = discord.Embed(
         title="🇩🇪 BUNDESREPUBLIK DEUTSCHLAND",
@@ -202,13 +202,15 @@ if not data:
         value=data[7],
         inline=False
     )
-embed.set_thumbnail(url=avatar_url)
 
-embed.add_field(
-    name="🔗 Profil Roblox",
-    value=profil_url,
-    inline=False
-)
+    embed.set_thumbnail(url=avatar_url)
+
+    embed.add_field(
+        name="🔗 Profil Roblox",
+        value=profil_url,
+        inline=False
+    )
+
     embed.set_footer(
         text="Emergency Hamburg RP"
     )
