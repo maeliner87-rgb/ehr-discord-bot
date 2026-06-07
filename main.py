@@ -170,7 +170,7 @@ class ValidationView(View):
         )
 class ListeIDView(View):
     def __init__(self, cartes):
-        super().__init__(timeout=300)
+        super().__init__(timeout=None)
 
         self.cartes = cartes
         self.page = 0
@@ -230,7 +230,10 @@ class ListeIDView(View):
         )        
 @client.event
 async def on_ready():
+    client.add_view(ValidationView("temp"))
+
     await tree.sync()
+
     print(f"✅ Connecté en tant que {client.user}")
 
 
