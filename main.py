@@ -149,10 +149,11 @@ async def identite(
         )
         return
 
-embed = discord.Embed(
-    title="Carte d'identité",
-    color=0x2b2d31
-)
+    embed = discord.Embed(
+        title="Carte d'identité",
+        color=0x2b2d31
+    )
+
     embed.add_field(
         name="🎮 Pseudo Roblox",
         value=data[8],
