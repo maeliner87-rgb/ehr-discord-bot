@@ -10,6 +10,11 @@ intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
+import os
+
+if os.path.exists("identites.db"):
+    os.remove("identites.db")
+    
 # Base de données
 conn = sqlite3.connect("identites.db")
 cursor = conn.cursor()
@@ -153,13 +158,14 @@ async def identite(
         (pseudo_roblox,)
     )
 
-data = cursor.fetchone()
 
-if data and data[9] == 0:
-    await interaction.response.send_message(
-        "⏳ Cette carte d'identité est en attente de validation."
-    )
-    return
+    data = cursor.fetchone()
+
+    if data and data[9] == 0:
+        await interaction.response.send_message(
+            "⏳ Cette carte d'identité est en attente de validation."
+        )
+        return
 
     user_data = await verifier_pseudo_roblox(pseudo_roblox)
 
