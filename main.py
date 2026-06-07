@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS identites (
     sexe TEXT,
     nationalite TEXT,
     pseudo_roblox TEXT,
+    salon_demande INTEGER,
     valide INTEGER DEFAULT 0
 )
 """)
@@ -91,7 +92,7 @@ class ValidationView(View):
         embed = interaction.message.embeds[0]
 
         embed.color = 0x2ecc71
-        embed.title = "✅ Carte d'identité acceptée"
+        embed.title = "Carte d'identité acceptée"
 
         embed.add_field(
             name=" ",
@@ -103,8 +104,23 @@ class ValidationView(View):
             inline=False
         )
         await interaction.message.reply(
-            f"✅ Carte d'identité acceptée par {interaction.user.mention}"
+            f"Carte d'identité acceptée par {interaction.user.mention}"
         )
+        cursor.execute(
+            "SELECT salon_demande FROM identites WHERE pseudo_roblox = ?",
+            (self.pseudo_roblox,)
+        )
+
+        result = cursor.fetchone()
+
+        if result:
+            salon = client.get_channel(result[0])
+
+            if salon:
+                await salon.send(
+                    f"✅ La carte d'identité de **{self.pseudo_roblox}** a été acceptée par {interaction.user.mention}"
+                )
+
         await interaction.response.edit_message(
             embed=embed,
             view=None
@@ -112,17 +128,18 @@ class ValidationView(View):
 
     async def refuser(self, interaction: discord.Interaction):
         cursor.execute(
-            "DELETE FROM identites WHERE pseudo_roblox = ?",
+            "SELECT salon_demande FROM identites WHERE pseudo_roblox = ?",
             (self.pseudo_roblox,)
         )
-        conn.commit()
+
+        result = cursor.fetchone()
 
         heure = datetime.now().strftime("%d/%m/%Y à %H:%M:%S")
 
         embed = interaction.message.embeds[0]
 
         embed.color = 0xe74c3c
-        embed.title = "❌ Carte d'identité refusée"
+        embed.title = "Carte d'identité refusée"
 
         embed.add_field(
             name=" ",
@@ -133,9 +150,24 @@ class ValidationView(View):
             ),
             inline=False
         )
+
         await interaction.message.reply(
             f"❌ Carte d'identité refusée par {interaction.user.mention}"
         )
+
+        if result:
+            salon = client.get_channel(result[0])
+
+            if salon:
+                await salon.send(
+                    f"❌ La carte d'identité de **{self.pseudo_roblox}** a été refusée par {interaction.user.mention}"
+                )
+
+        cursor.execute(
+            "DELETE FROM identites WHERE pseudo_roblox = ?",
+            (self.pseudo_roblox,)
+        )
+        conn.commit()
 
         await interaction.response.edit_message(
             embed=embed,
@@ -162,7 +194,9 @@ async def creeridentite(
     age: str,
     sexe: str,
     nationalite: str
-):
+        ):
+
+    salon_demande = interaction.channel.id
 
     user_data = await verifier_pseudo_roblox(pseudo_roblox)
 
@@ -175,7 +209,7 @@ async def creeridentite(
 
     cursor.execute("""
 INSERT OR REPLACE INTO identites
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         str(interaction.user),
         nom,
@@ -185,7 +219,9 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
         age,
         sexe,
         nationalite,
-        pseudo_roblox
+        pseudo_roblox,
+        salon_demande,
+        0
     ))
 
     conn.commit()
@@ -221,7 +257,7 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
     )
 
     await interaction.response.send_message(
-        "✅ Votre demande de carte d'identité a été envoyée pour validation.",
+        "Votre demande de carte d'identité a été envoyée pour validation.",
         ephemeral=True
     )
 
@@ -243,9 +279,9 @@ async def identite(
 
     data = cursor.fetchone()
 
-    if data and data[9] == 0:
+    if data and data[10] == 0:
         await interaction.response.send_message(
-            "⏳ Cette carte d'identité est en attente de validation."
+            "Cette carte d'identité est en attente de validation."
         )
         return
 
@@ -253,7 +289,7 @@ async def identite(
 
     if user_data is None:
         await interaction.response.send_message(
-            "❌ Impossible de récupérer les informations Roblox."
+            "Impossible de récupérer les informations Roblox."
         )
         return
 
@@ -268,7 +304,7 @@ async def identite(
 
     if not data:
         await interaction.response.send_message(
-            "❌ Aucune carte d'identité trouvée."
+            "Aucune carte d'identité trouvée."
         )
         return
 
