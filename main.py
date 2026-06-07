@@ -234,6 +234,9 @@ async def on_ready():
 
     await tree.sync()
 
+    cursor.execute("SELECT COUNT(*) FROM identites")
+    print("NB CARTES =", cursor.fetchone()[0])
+
     print(f"✅ Connecté en tant que {client.user}")
 
 
