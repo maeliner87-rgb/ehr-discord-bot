@@ -174,17 +174,11 @@ async def identite(
     )
 
     embed.add_field(
-        name="Date de naissance",
-        value=data[3],
+        name="Date et lieu de naissance",
+        value=f"{data[3]} • {data[4]}",
         inline=False
     )
-
-    embed.add_field(
-        name="Ville de naissance",
-        value=data[4],
-        inline=False
-    )
-
+    
     embed.add_field(
         name="Âge",
         value=data[5],
