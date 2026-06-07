@@ -230,7 +230,6 @@ class ListeIDView(View):
         )        
 @client.event
 async def on_ready():
-    client.add_view(ValidationView("temp"))
 
     await tree.sync()
 
