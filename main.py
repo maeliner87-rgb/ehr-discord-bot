@@ -103,9 +103,7 @@ class ValidationView(View):
             ),
             inline=False
         )
-        await interaction.message.reply(
-            f"Carte d'identité acceptée par {interaction.user.mention}"
-        )
+        
         cursor.execute(
             "SELECT salon_demande FROM identites WHERE pseudo_roblox = ?",
             (self.pseudo_roblox,)
@@ -118,7 +116,7 @@ class ValidationView(View):
 
             if salon:
                 await salon.send(
-                    f"✅ La carte d'identité de **{self.pseudo_roblox}** a été acceptée par {interaction.user.mention}"
+                    f"La carte d'identité de **{self.pseudo_roblox}** a été acceptée."
                 )
 
         await interaction.response.edit_message(
@@ -151,16 +149,13 @@ class ValidationView(View):
             inline=False
         )
 
-        await interaction.message.reply(
-            f"❌ Carte d'identité refusée par {interaction.user.mention}"
-        )
 
         if result:
             salon = client.get_channel(result[0])
 
             if salon:
                 await salon.send(
-                    f"❌ La carte d'identité de **{self.pseudo_roblox}** a été refusée par {interaction.user.mention}"
+                    f"La carte d'identité de **{self.pseudo_roblox}** a été refusée."
                 )
 
         cursor.execute(
