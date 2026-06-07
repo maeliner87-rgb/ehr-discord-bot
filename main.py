@@ -156,7 +156,7 @@ async def identite(
     )
 
     embed.add_field(
-        name="🎮 Pseudo Roblox",
+        name="Pseudo Roblox",
         value=data[8],
         inline=False
     )
@@ -205,17 +205,9 @@ async def identite(
 
     embed.set_thumbnail(url=avatar_url)
 
-    embed.add_field(
-        name="🔗 Profil Roblox",
-        value=profil_url,
-        inline=False
-    )
-
     embed.set_footer(
         text="Emergency Hamburg RP"
     )
-
-    view = View()
 
     view = View()
 
