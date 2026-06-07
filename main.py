@@ -124,8 +124,10 @@ async def identite(
         (pseudo_roblox,)
     )
 
-    data = cursor.fetchone()
-    user_data = await verifier_pseudo_roblox(pseudo_roblox)
+data = cursor.fetchone()
+
+user_data = await verifier_pseudo_roblox(pseudo_roblox)
+
 if user_data is None:
     await interaction.response.send_message(
         "❌ Impossible de récupérer les informations Roblox."
@@ -141,11 +143,11 @@ avatar_url = (
 
 profil_url = f"https://www.roblox.com/users/{roblox_id}/profile"
 
-    if not data:
-        await interaction.response.send_message(
-            "❌ Aucune carte d'identité trouvée."
-        )
-        return
+if not data:
+    await interaction.response.send_message(
+        "❌ Aucune carte d'identité trouvée."
+    )
+    return
 
     embed = discord.Embed(
         title="🇩🇪 BUNDESREPUBLIK DEUTSCHLAND",
