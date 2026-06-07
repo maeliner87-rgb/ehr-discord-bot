@@ -41,15 +41,13 @@ async def verifier_pseudo_roblox(pseudo):
             }
         ) as response:
 
-            if response.status != 200:
-                return None
+            print("STATUS =", response.status)
 
-            data = await response.json()
+            data = await response.text()
 
-            if not data["data"]:
-                return None
+            print("REPONSE ROBLOX =", data)
 
-            return data["data"][0]
+            return None
 
 
 @client.event
