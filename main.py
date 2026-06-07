@@ -102,7 +102,9 @@ class ValidationView(View):
             ),
             inline=False
         )
-
+        await interaction.message.reply(
+            f"✅ Carte d'identité acceptée par {interaction.user.mention}"
+        )
         await interaction.response.edit_message(
             embed=embed,
             view=None
@@ -130,6 +132,9 @@ class ValidationView(View):
                 f"**Date :** {heure}"
             ),
             inline=False
+        )
+        await interaction.message.reply(
+            f"❌ Carte d'identité refusée par {interaction.user.mention}"
         )
 
         await interaction.response.edit_message(
