@@ -27,6 +27,8 @@ CREATE TABLE IF NOT EXISTS identites (
 )
 """)
 conn.commit()
+
+
 async def verifier_pseudo_roblox(pseudo):
     url = "https://users.roblox.com/v1/usernames/users"
 
@@ -49,6 +51,7 @@ async def verifier_pseudo_roblox(pseudo):
 
             return data["data"][0]
 
+
 @client.event
 async def on_ready():
     await tree.sync()
@@ -70,6 +73,15 @@ async def creeridentite(
     sexe: str,
     nationalite: str
 ):
+
+    user_data = await verifier_pseudo_roblox(pseudo_roblox)
+
+    if user_data is None:
+        await interaction.response.send_message(
+            "❌ Ce pseudo Roblox n'existe pas.",
+            ephemeral=True
+        )
+        return
 
     cursor.execute("""
     INSERT OR REPLACE INTO identites
