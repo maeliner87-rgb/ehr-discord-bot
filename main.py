@@ -155,40 +155,14 @@ async def identite(
         color=0x2b2d31
     )
 
-    embed.add_field(
-        name="Pseudo Roblox",
-        value=data[8],
-        inline=False
-    )
-
-    embed.add_field(
-        name="Nom",
-        value=data[1],
-        inline=True
-    )
-
-    embed.add_field(
-        name="Prénom",
-        value=data[2],
-        inline=True
-    )
-
-    embed.add_field(
-        name="Date et lieu de naissance",
-        value=f"{data[3]} • {data[4]}",
-        inline=False
-    )
-    
-    embed.add_field(
-        name="Âge et sexe",
-        value=f"{data[5]} • {data[6]}",
-        inline=False
-    )
-
-    embed.add_field(
-        name="Nationalité",
-        value=data[7],
-        inline=False
+    embed.description = (
+        f"**Pseudo Roblox**\n"
+        f"{data[8]}\n\n"
+        f"**Nom :** {data[1]}          **Prénom :** {data[2]}\n\n"
+        f"**Date de naissance :** {data[3]}\n"
+        f"**Ville de naissance :** {data[4]}\n\n"
+        f"**Âge :** {data[5]}          **Sexe :** {data[6]}\n\n"
+        f"**Nationalité :** {data[7]}"
     )
 
     embed.set_thumbnail(url=avatar_url)
