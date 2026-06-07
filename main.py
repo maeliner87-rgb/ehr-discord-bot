@@ -155,14 +155,20 @@ async def identite(
         color=0x2b2d31
     )
     embed.description = (
-        f"**Pseudo Roblox**\n"
-        f"{data[8]}\n\n"
-        f"**Nom :** {data[1]}          **Prénom :** {data[2]}\n\n"
-        f"**Date de naissance :** {data[3]}\n"
-        f"**Ville de naissance :** {data[4]}\n\n"
-        f"**Âge :** {data[5]}          **Sexe :** {data[6]}\n\n"
-        f"**Nationalité :** {data[7]}"
-    )
+    f"**Pseudo Roblox**\n"
+    f"{data[8]}\n\n"
+
+    f"**Nom :** {data[1]}\n"
+    f"**Prénom :** {data[2]}\n\n"
+
+    f"**Date de naissance :** {data[3]}\n"
+    f"**Ville de naissance :** {data[4]}\n\n"
+
+    f"**Âge :** {data[5]}\n"
+    f"**Sexe :** {data[6]}\n\n"
+
+    f"**Nationalité :** {data[7]}"
+)
 
     embed.set_thumbnail(url=avatar_url)
 
