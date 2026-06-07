@@ -263,12 +263,9 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 )
 async def listeid(interaction: discord.Interaction):
 
-    cursor.execute("""
-        SELECT pseudo_roblox, nom, prenom
-        FROM identites
-        WHERE valide = 1
-        ORDER BY pseudo_roblox
-    """)
+    cursor.execute(
+        "SELECT * FROM identites WHERE valide = 1"
+    )
 
     resultats = cursor.fetchall()
 
@@ -278,22 +275,50 @@ async def listeid(interaction: discord.Interaction):
         )
         return
 
-    description = ""
+    embeds = []
 
-    for pseudo, nom, prenom in resultats:
-        description += f"• **{pseudo}** — {prenom} {nom}\n"
+    for data in resultats:
 
-    embed = discord.Embed(
-        title="📋 Liste des cartes d'identité",
-        description=description,
-        color=0x3498db
+        embed = discord.Embed(
+            title="Carte d'identité",
+            color=0x2b2d31
+        )
+
+        embed.description = (
+            f"**Pseudo Roblox**\n"
+            f"{data[8]}\n\n"
+
+            f"**Nom :** {data[1]}\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0**Prénom :** {data[2]}\n\n"
+
+            f"**Date de naissance :** {data[3]}\n"
+            f"**Ville de naissance :** {data[4]}\n\n"
+
+            f"**Âge :** {data[5]}\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0**Sexe :** {data[6]}\n\n"
+
+            f"**Nationalité :** {data[7]}"
+        )
+
+        user_data = await verifier_pseudo_roblox(data[8])
+
+        if user_data:
+            roblox_id = user_data["id"]
+
+            avatar_url = (
+                f"https://www.roblox.com/headshot-thumbnail/image"
+                f"?userId={roblox_id}&width=420&height=420&format=png"
+            )
+
+            embed.set_thumbnail(url=avatar_url)
+
+        embed.set_footer(
+            text="Emergency Hamburg RP"
+        )
+
+        embeds.append(embed)
+
+    await interaction.response.send_message(
+        embeds=embeds[:10]
     )
-
-    embed.set_footer(
-        text=f"{len(resultats)} carte(s) trouvée(s)"
-    )
-
-    await interaction.response.send_message(embed=embed)
 
 
 @tree.command(
@@ -304,7 +329,6 @@ async def identite(
     interaction: discord.Interaction,
     pseudo_roblox: str
 ):
-
     cursor.execute(
         "SELECT * FROM identites WHERE pseudo_roblox = ?",
         (pseudo_roblox,)
