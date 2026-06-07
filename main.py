@@ -103,11 +103,16 @@ async def creeridentite(
         pseudo_roblox
     ))
 
-    conn.commit()
+        conn.commit()
 
     salon = client.get_channel(1513017794214498414)
 
-        embed_validation.description = (
+    embed_validation = discord.Embed(
+        title="📋 Nouvelle demande de carte d'identité",
+        color=0xf1c40f
+    )
+
+    embed_validation.description = (
         f"**Pseudo Roblox**\n"
         f"{pseudo_roblox}\n\n"
 
