@@ -105,8 +105,28 @@ async def creeridentite(
 
     conn.commit()
 
+    salon = client.get_channel(1513017794214498414)
+
+    embed_validation = discord.Embed(
+        title="📋 Nouvelle demande de carte d'identité",
+        color=0xf1c40f
+    )
+
+    embed_validation.description = (
+        f"**Pseudo Roblox :** {pseudo_roblox}\n"
+        f"**Nom :** {nom}\n"
+        f"**Prénom :** {prenom}\n"
+        f"**Date de naissance :** {naissance}\n"
+        f"**Ville de naissance :** {ville_naissance}\n"
+        f"**Âge :** {age}\n"
+        f"**Sexe :** {sexe}\n"
+        f"**Nationalité :** {nationalite}"
+    )
+
+    await salon.send(embed=embed_validation)
+
     await interaction.response.send_message(
-        "✅ Votre carte d'identité a été enregistrée.",
+        "✅ Votre demande de carte d'identité a été envoyée pour validation.",
         ephemeral=True
     )
 
