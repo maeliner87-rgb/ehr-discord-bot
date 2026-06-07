@@ -24,7 +24,8 @@ CREATE TABLE IF NOT EXISTS identites (
     age TEXT,
     sexe TEXT,
     nationalite TEXT,
-    pseudo_roblox TEXT
+    pseudo_roblox TEXT,
+    valide INTEGER DEFAULT 0
 )
 """)
 conn.commit()
@@ -89,8 +90,8 @@ async def creeridentite(
         return
 
     cursor.execute("""
-    INSERT OR REPLACE INTO identites
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+INSERT OR REPLACE INTO identites
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
     """, (
         str(interaction.user),
         nom,
@@ -152,7 +153,13 @@ async def identite(
         (pseudo_roblox,)
     )
 
-    data = cursor.fetchone()
+data = cursor.fetchone()
+
+if data and data[9] == 0:
+    await interaction.response.send_message(
+        "⏳ Cette carte d'identité est en attente de validation."
+    )
+    return
 
     user_data = await verifier_pseudo_roblox(pseudo_roblox)
 
