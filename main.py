@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands
-import sqlite3
+import psycopg2
 import os
 import aiohttp
 from discord.ui import View, Button
@@ -12,7 +12,7 @@ client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
     
 # Base de données
-conn = sqlite3.connect("identites.db")
+conn = psycopg2.connect(os.getenv("DATABASE_URL"))
 cursor = conn.cursor()
 
 cursor.execute("""
@@ -82,7 +82,7 @@ class ValidationView(View):
 
     async def accepter(self, interaction: discord.Interaction):
         cursor.execute(
-            "UPDATE identites SET valide = 1 WHERE pseudo_roblox = ?",
+            "UPDATE identites SET valide = 1 WHERE pseudo_roblox = %s",
             (self.pseudo_roblox,)
         )
         conn.commit()
@@ -105,7 +105,7 @@ class ValidationView(View):
         )
         
         cursor.execute(
-            "SELECT salon_demande FROM identites WHERE pseudo_roblox = ?",
+            "SELECT salon_demande FROM identites WHERE pseudo_roblox = %s",
             (self.pseudo_roblox,)
         )
 
@@ -126,7 +126,7 @@ class ValidationView(View):
 
     async def refuser(self, interaction: discord.Interaction):
         cursor.execute(
-            "SELECT salon_demande FROM identites WHERE pseudo_roblox = ?",
+            "SELECT salon_demande FROM identites WHERE pseudo_roblox = %s",
             (self.pseudo_roblox,)
         )
 
@@ -159,7 +159,7 @@ class ValidationView(View):
                 )
 
         cursor.execute(
-            "DELETE FROM identites WHERE pseudo_roblox = ?",
+            "DELETE FROM identites WHERE pseudo_roblox = %s",
             (self.pseudo_roblox,)
         )
         conn.commit()
@@ -253,7 +253,7 @@ async def creeridentite(
     age: str,
     sexe: str,
     nationalite: str
-        ):
+):
 
     salon_demande = interaction.channel.id
 
@@ -267,8 +267,32 @@ async def creeridentite(
         return
 
     cursor.execute("""
-INSERT OR REPLACE INTO identites
-VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO identites (
+        pseudo_discord,
+        nom,
+        prenom,
+        naissance,
+        ville_naissance,
+        age,
+        sexe,
+        nationalite,
+        pseudo_roblox,
+        salon_demande,
+        valide
+    )
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    ON CONFLICT (pseudo_roblox)
+    DO UPDATE SET
+        pseudo_discord = EXCLUDED.pseudo_discord,
+        nom = EXCLUDED.nom,
+        prenom = EXCLUDED.prenom,
+        naissance = EXCLUDED.naissance,
+        ville_naissance = EXCLUDED.ville_naissance,
+        age = EXCLUDED.age,
+        sexe = EXCLUDED.sexe,
+        nationalite = EXCLUDED.nationalite,
+        salon_demande = EXCLUDED.salon_demande,
+        valide = 0
     """, (
         str(interaction.user),
         nom,
@@ -355,7 +379,7 @@ async def identite(
     pseudo_roblox: str
 ):
     cursor.execute(
-        "SELECT * FROM identites WHERE pseudo_roblox = ?",
+        "SELECT * FROM identites WHERE pseudo_roblox = %s",
         (pseudo_roblox,)
     )
 
