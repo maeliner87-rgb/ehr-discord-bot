@@ -27,7 +27,27 @@ CREATE TABLE IF NOT EXISTS identites (
 )
 """)
 conn.commit()
+async def verifier_pseudo_roblox(pseudo):
+    url = "https://users.roblox.com/v1/usernames/users"
 
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            url,
+            json={
+                "usernames": [pseudo],
+                "excludeBannedUsers": False
+            }
+        ) as response:
+
+            if response.status != 200:
+                return None
+
+            data = await response.json()
+
+            if not data["data"]:
+                return None
+
+            return data["data"][0]
 
 @client.event
 async def on_ready():
