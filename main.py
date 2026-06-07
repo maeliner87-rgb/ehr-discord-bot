@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 import sqlite3
 import os
+import aiohttp
 
 intents = discord.Intents.default()
 
