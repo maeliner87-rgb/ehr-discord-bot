@@ -4,6 +4,7 @@ import sqlite3
 import os
 import aiohttp
 from discord.ui import View, Button
+from datetime import datetime
 
 intents = discord.Intents.default()
 
@@ -57,7 +58,83 @@ async def verifier_pseudo_roblox(pseudo):
 
             return data["data"][0]
 
+class ValidationView(View):
+    def __init__(self, pseudo_roblox):
+        super().__init__(timeout=None)
+        self.pseudo_roblox = pseudo_roblox
 
+        accepter = Button(
+            label="✅ Accepter",
+            style=discord.ButtonStyle.green
+        )
+
+        refuser = Button(
+            label="❌ Refuser",
+            style=discord.ButtonStyle.red
+        )
+
+        accepter.callback = self.accepter
+        refuser.callback = self.refuser
+
+        self.add_item(accepter)
+        self.add_item(refuser)
+
+    async def accepter(self, interaction: discord.Interaction):
+        cursor.execute(
+            "UPDATE identites SET valide = 1 WHERE pseudo_roblox = ?",
+            (self.pseudo_roblox,)
+        )
+        conn.commit()
+
+        heure = datetime.now().strftime("%d/%m/%Y à %H:%M:%S")
+
+        embed = interaction.message.embeds[0]
+
+        embed.color = 0x2ecc71
+        embed.title = "✅ Carte d'identité acceptée"
+
+        embed.add_field(
+            name="Validation",
+            value=(
+                f"**Acceptée par :** {interaction.user.mention}\n"
+                f"**Date :** {heure}"
+            ),
+            inline=False
+        )
+
+        await interaction.response.edit_message(
+            embed=embed,
+            view=None
+        )
+
+    async def refuser(self, interaction: discord.Interaction):
+        cursor.execute(
+            "DELETE FROM identites WHERE pseudo_roblox = ?",
+            (self.pseudo_roblox,)
+        )
+        conn.commit()
+
+        heure = datetime.now().strftime("%d/%m/%Y à %H:%M:%S")
+
+        embed = interaction.message.embeds[0]
+
+        embed.color = 0xe74c3c
+        embed.title = "❌ Carte d'identité refusée"
+
+        embed.add_field(
+            name="Refus",
+            value=(
+                f"**Refusée par :** {interaction.user.mention}\n"
+                f"**Date :** {heure}"
+            ),
+            inline=False
+        )
+
+        await interaction.response.edit_message(
+            embed=embed,
+            view=None
+        )
+        
 @client.event
 async def on_ready():
     await tree.sync()
@@ -131,7 +208,10 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
         text="Emergency Hamburg RP"
     )
 
-    await salon.send(embed=embed_validation)
+    await salon.send(
+        embed=embed_validation,
+        view=ValidationView(pseudo_roblox)
+    )
 
     await interaction.response.send_message(
         "✅ Votre demande de carte d'identité a été envoyée pour validation.",
@@ -222,24 +302,7 @@ async def identite(
         embed=embed,
         view=view
     )
-@tree.command(
-    name="accepterid",
-    description="Valider une carte d'identité"
-)
-async def accepterid(
-    interaction: discord.Interaction,
-    pseudo_roblox: str
-):
-    cursor.execute(
-        "UPDATE identites SET valide = 1 WHERE pseudo_roblox = ?",
-        (pseudo_roblox,)
-    )
 
-    conn.commit()
-
-    await interaction.response.send_message(
-        f"✅ Carte d'identité de {pseudo_roblox} validée."
-    )
     
 TOKEN = os.getenv("TOKEN")
 
