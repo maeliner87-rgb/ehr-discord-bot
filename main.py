@@ -144,7 +144,7 @@ async def on_ready():
 
 
 @tree.command(
-    name="créeid",
+    name="demandeid",
     description="Créer une carte d'identité"
 )
 async def creeridentite(
