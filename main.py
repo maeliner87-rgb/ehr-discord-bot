@@ -258,6 +258,45 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 
 
 @tree.command(
+    name="listeid",
+    description="Afficher toutes les cartes d'identité"
+)
+async def listeid(interaction: discord.Interaction):
+
+    cursor.execute("""
+        SELECT pseudo_roblox, nom, prenom
+        FROM identites
+        WHERE valide = 1
+        ORDER BY pseudo_roblox
+    """)
+
+    resultats = cursor.fetchall()
+
+    if not resultats:
+        await interaction.response.send_message(
+            "Aucune carte d'identité trouvée."
+        )
+        return
+
+    description = ""
+
+    for pseudo, nom, prenom in resultats:
+        description += f"• **{pseudo}** — {prenom} {nom}\n"
+
+    embed = discord.Embed(
+        title="📋 Liste des cartes d'identité",
+        description=description,
+        color=0x3498db
+    )
+
+    embed.set_footer(
+        text=f"{len(resultats)} carte(s) trouvée(s)"
+    )
+
+    await interaction.response.send_message(embed=embed)
+
+
+@tree.command(
     name="id",
     description="Rechercher une carte d'identité"
 )
