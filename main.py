@@ -94,8 +94,9 @@ class ValidationView(View):
         embed.title = "✅ Carte d'identité acceptée"
 
         embed.add_field(
-            name="Validation",
+            name=" ",
             value=(
+                "\n"
                 f"**Acceptée par :** {interaction.user.mention}\n"
                 f"**Date :** {heure}"
             ),
@@ -122,8 +123,9 @@ class ValidationView(View):
         embed.title = "❌ Carte d'identité refusée"
 
         embed.add_field(
-            name="Refus",
+            name=" ",
             value=(
+                "\n"
                 f"**Refusée par :** {interaction.user.mention}\n"
                 f"**Date :** {heure}"
             ),
