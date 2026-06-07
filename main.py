@@ -17,7 +17,7 @@ cursor = conn.cursor()
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS identites (
-    pseudo_discord TEXT PRIMARY KEY,
+    pseudo_discord TEXT,
     nom TEXT,
     prenom TEXT,
     naissance TEXT,
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS identites (
     age TEXT,
     sexe TEXT,
     nationalite TEXT,
-    pseudo_roblox TEXT,
+    pseudo_roblox TEXT PRIMARY KEY,
     salon_demande INTEGER,
     valide INTEGER DEFAULT 0
 )
