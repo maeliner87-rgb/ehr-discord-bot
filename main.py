@@ -157,15 +157,15 @@ async def identite(
 
     embed.description = (
     f"**Pseudo Roblox**\n"
-    f"{data[8]}\n\n\n"
+    f"{data[8]}\n"
 
     f"**Nom :** {data[1]}\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0**Prénom :** {data[2]}\n\n\n"
 
-    f"**Date de naissance :** {data[3]}\n\n\n"
+    f"**Date de naissance :** {data[3]}\n"
 
-    f"**Ville de naissance :** {data[4]}\n\n\n"
+    f"**Ville de naissance :** {data[4]}\n"
 
-    f"**Âge :** {data[5]}\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0**Sexe :** {data[6]}\n\n\n"
+    f"**Âge :** {data[5]}\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0**Sexe :** {data[6]}\n"
 
     f"**Nationalité :** {data[7]}"
 )
