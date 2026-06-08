@@ -212,6 +212,7 @@ class ValidationModificationView(View):
         )
 
         data = cursor.fetchone()
+        salon_demande = data[8]
 
         if not data:
             await interaction.response.send_message(
@@ -249,6 +250,13 @@ class ValidationModificationView(View):
 
         conn.commit()
 
+        salon = client.get_channel(salon_demande)
+
+        if salon:
+            await salon.send(
+                f"La modification de la carte d'identité de **{self.pseudo_roblox}** a été acceptée."
+            )
+
         heure = datetime.now().strftime("%d/%m/%Y à %H:%M:%S")
 
         embed = interaction.message.embeds[0]
@@ -272,6 +280,23 @@ class ValidationModificationView(View):
         )
 
     async def refuser(self, interaction: discord.Interaction):
+
+        cursor.execute(
+            "SELECT salon_demande FROM modifications WHERE pseudo_roblox = %s",
+            (self.pseudo_roblox,)
+        )
+
+        result = cursor.fetchone()
+
+        if result:
+            salon_demande = result[0]
+
+            salon = client.get_channel(salon_demande)
+
+            if salon:
+                await salon.send(
+                    f"La modification de la carte d'identité de **{self.pseudo_roblox}** a été refusée."
+                )
 
         cursor.execute(
             "DELETE FROM modifications WHERE pseudo_roblox = %s",
