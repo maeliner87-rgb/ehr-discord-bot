@@ -402,6 +402,63 @@ async def supprimerid(
         f"✅ La carte d'identité de **{pseudo_roblox}** a été supprimée.",
         ephemeral=True
     )
+
+@tree.command(
+    name="modifierid",
+    description="Modifier une carte d'identité"
+)
+async def modifierid(
+    interaction: discord.Interaction,
+    pseudo_roblox: str,
+    nom: str,
+    prenom: str,
+    naissance: str,
+    ville_naissance: str,
+    age: str,
+    sexe: str,
+    nationalite: str
+):
+
+    cursor.execute(
+        "SELECT * FROM identites WHERE pseudo_roblox = %s",
+        (pseudo_roblox,)
+    )
+
+    if not cursor.fetchone():
+        await interaction.response.send_message(
+            "❌ Aucune carte d'identité trouvée.",
+            ephemeral=True
+        )
+        return
+
+    cursor.execute("""
+        UPDATE identites
+        SET
+            nom = %s,
+            prenom = %s,
+            naissance = %s,
+            ville_naissance = %s,
+            age = %s,
+            sexe = %s,
+            nationalite = %s
+        WHERE pseudo_roblox = %s
+    """, (
+        nom,
+        prenom,
+        naissance,
+        ville_naissance,
+        age,
+        sexe,
+        nationalite,
+        pseudo_roblox
+    ))
+
+    conn.commit()
+
+    await interaction.response.send_message(
+        f"✅ La carte d'identité de **{pseudo_roblox}** a été modifiée.",
+        ephemeral=True
+    )
 @tree.command(
     name="id",
     description="Rechercher une carte d'identité"
