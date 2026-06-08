@@ -468,14 +468,19 @@ async def identite(
     pseudo_roblox: str
 ):
     cursor.execute(
-        "SELECT * FROM identites WHERE pseudo_roblox = %s",
+        "SELECT * FROM identites WHERE LOWER(pseudo_roblox) = LOWER(%s)",
         (pseudo_roblox,)
     )
 
-
     data = cursor.fetchone()
 
-    if data and data[10] == 0:
+    if not data:
+        await interaction.response.send_message(
+            "Aucune carte d'identité trouvée."
+        )
+        return
+
+    if data[10] == 0:
         await interaction.response.send_message(
             "Cette carte d'identité est en attente de validation."
         )
