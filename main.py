@@ -369,7 +369,39 @@ async def listeid(interaction: discord.Interaction):
         embed=view.creer_embed(),
         view=view
     )
+@tree.command(
+    name="supprimerid",
+    description="Supprimer une carte d'identité"
+)
+async def supprimerid(
+    interaction: discord.Interaction,
+    pseudo_roblox: str
+):
 
+    cursor.execute(
+        "SELECT * FROM identites WHERE pseudo_roblox = %s",
+        (pseudo_roblox,)
+    )
+
+    data = cursor.fetchone()
+
+    if not data:
+        await interaction.response.send_message(
+            "❌ Aucune carte d'identité trouvée.",
+            ephemeral=True
+        )
+        return
+
+    cursor.execute(
+        "DELETE FROM identites WHERE pseudo_roblox = %s",
+        (pseudo_roblox,)
+    )
+    conn.commit()
+
+    await interaction.response.send_message(
+        f"✅ La carte d'identité de **{pseudo_roblox}** a été supprimée.",
+        ephemeral=True
+    )
 @tree.command(
     name="id",
     description="Rechercher une carte d'identité"
