@@ -404,7 +404,7 @@ async def supprimerid(
     )
 
 @tree.command(
-    name="modifierid",
+    name="editid",
     description="Modifier une carte d'identité"
 )
 async def modifierid(
