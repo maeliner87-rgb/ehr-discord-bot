@@ -249,9 +249,25 @@ class ValidationModificationView(View):
 
         conn.commit()
 
+        heure = datetime.now().strftime("%d/%m/%Y à %H:%M:%S")
+
+        embed = interaction.message.embeds[0]
+
+        embed.color = 0x2ecc71
+        embed.title = "Modification acceptée"
+
+        embed.add_field(
+            name=" ",
+            value=(
+                "\n"
+                f"**Acceptée par :** {interaction.user.mention}\n"
+                f"**Date :** {heure}"
+            ),
+            inline=False
+        )
+
         await interaction.response.edit_message(
-            content="✅ Modification acceptée.",
-            embed=None,
+            embed=embed,
             view=None
         )
 
@@ -264,9 +280,25 @@ class ValidationModificationView(View):
 
         conn.commit()
 
+        heure = datetime.now().strftime("%d/%m/%Y à %H:%M:%S")
+
+        embed = interaction.message.embeds[0]
+
+        embed.color = 0xe74c3c
+        embed.title = "Modification refusée"
+
+        embed.add_field(
+            name=" ",
+            value=(
+                "\n"
+                f"**Refusée par :** {interaction.user.mention}\n"
+                f"**Date :** {heure}"
+            ),
+            inline=False
+        )
+
         await interaction.response.edit_message(
-            content="❌ Modification refusée.",
-            embed=None,
+            embed=embed,
             view=None
         )
         
