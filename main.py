@@ -32,6 +32,21 @@ CREATE TABLE IF NOT EXISTS identites (
 """)
 conn.commit()
 
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS modifications (
+    pseudo_roblox TEXT PRIMARY KEY,
+    nom TEXT,
+    prenom TEXT,
+    naissance TEXT,
+    ville_naissance TEXT,
+    age TEXT,
+    sexe TEXT,
+    nationalite TEXT,
+    salon_demande BIGINT
+)
+""")
+conn.commit()
+
 
 async def verifier_pseudo_roblox(pseudo):
     url = "https://users.roblox.com/v1/usernames/users"
@@ -168,6 +183,93 @@ class ValidationView(View):
             embed=embed,
             view=None
         )
+class ValidationModificationView(View):
+    def __init__(self, pseudo_roblox):
+        super().__init__(timeout=None)
+        self.pseudo_roblox = pseudo_roblox
+
+        accepter = Button(
+            label="✅ Accepter",
+            style=discord.ButtonStyle.green
+        )
+
+        refuser = Button(
+            label="❌ Refuser",
+            style=discord.ButtonStyle.red
+        )
+
+        accepter.callback = self.accepter
+        refuser.callback = self.refuser
+
+        self.add_item(accepter)
+        self.add_item(refuser)
+
+    async def accepter(self, interaction: discord.Interaction):
+
+        cursor.execute(
+            "SELECT * FROM modifications WHERE pseudo_roblox = %s",
+            (self.pseudo_roblox,)
+        )
+
+        data = cursor.fetchone()
+
+        if not data:
+            await interaction.response.send_message(
+                "Modification introuvable.",
+                ephemeral=True
+            )
+            return
+
+        cursor.execute("""
+            UPDATE identites
+            SET
+                nom = %s,
+                prenom = %s,
+                naissance = %s,
+                ville_naissance = %s,
+                age = %s,
+                sexe = %s,
+                nationalite = %s
+            WHERE pseudo_roblox = %s
+        """, (
+            data[1],
+            data[2],
+            data[3],
+            data[4],
+            data[5],
+            data[6],
+            data[7],
+            self.pseudo_roblox
+        ))
+
+        cursor.execute(
+            "DELETE FROM modifications WHERE pseudo_roblox = %s",
+            (self.pseudo_roblox,)
+        )
+
+        conn.commit()
+
+        await interaction.response.edit_message(
+            content="✅ Modification acceptée.",
+            embed=None,
+            view=None
+        )
+
+    async def refuser(self, interaction: discord.Interaction):
+
+        cursor.execute(
+            "DELETE FROM modifications WHERE pseudo_roblox = %s",
+            (self.pseudo_roblox,)
+        )
+
+        conn.commit()
+
+        await interaction.response.edit_message(
+            content="❌ Modification refusée.",
+            embed=None,
+            view=None
+        )
+        
 class ListeIDView(View):
     def __init__(self, cartes):
         super().__init__(timeout=None)
@@ -405,7 +507,7 @@ async def supprimerid(
 
 @tree.command(
     name="editid",
-    description="Modifier une carte d'identité"
+    description="Demander une modification de carte d'identité"
 )
 async def modifierid(
     interaction: discord.Interaction,
@@ -424,7 +526,9 @@ async def modifierid(
         (pseudo_roblox,)
     )
 
-    if not cursor.fetchone():
+    ancienne = cursor.fetchone()
+
+    if not ancienne:
         await interaction.response.send_message(
             "Aucune carte d'identité trouvée.",
             ephemeral=True
@@ -432,17 +536,29 @@ async def modifierid(
         return
 
     cursor.execute("""
-        UPDATE identites
-        SET
-            nom = %s,
-            prenom = %s,
-            naissance = %s,
-            ville_naissance = %s,
-            age = %s,
-            sexe = %s,
-            nationalite = %s
-        WHERE pseudo_roblox = %s
+        INSERT INTO modifications (
+            pseudo_roblox,
+            nom,
+            prenom,
+            naissance,
+            ville_naissance,
+            age,
+            sexe,
+            nationalite,
+            salon_demande
+        )
+        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        ON CONFLICT (pseudo_roblox)
+        DO UPDATE SET
+            nom = EXCLUDED.nom,
+            prenom = EXCLUDED.prenom,
+            naissance = EXCLUDED.naissance,
+            ville_naissance = EXCLUDED.ville_naissance,
+            age = EXCLUDED.age,
+            sexe = EXCLUDED.sexe,
+            nationalite = EXCLUDED.nationalite
     """, (
+        pseudo_roblox,
         nom,
         prenom,
         naissance,
@@ -450,15 +566,40 @@ async def modifierid(
         age,
         sexe,
         nationalite,
-        pseudo_roblox
+        interaction.channel.id
     ))
 
     conn.commit()
 
+    salon = client.get_channel(1513017794214498414)
+
+    embed = discord.Embed(
+        title="📋 Demande de modification de carte d'identité",
+        color=0xe67e22
+    )
+
+    embed.description = (
+        f"**Pseudo Roblox**\n{pseudo_roblox}\n\n"
+        f"**Nom :** {ancienne[1]} ➜ {nom}\n"
+        f"**Prénom :** {ancienne[2]} ➜ {prenom}\n"
+        f"**Date de naissance :** {ancienne[3]} ➜ {naissance}\n"
+        f"**Ville de naissance :** {ancienne[4]} ➜ {ville_naissance}\n"
+        f"**Âge :** {ancienne[5]} ➜ {age}\n"
+        f"**Sexe :** {ancienne[6]} ➜ {sexe}\n"
+        f"**Nationalité :** {ancienne[7]} ➜ {nationalite}"
+    )
+
+    await salon.send(
+        embed=embed,
+        view=ValidationModificationView(pseudo_roblox)
+    )
+
     await interaction.response.send_message(
-        f"La carte d'identité de **{pseudo_roblox}** a été modifiée.",
+        "Votre demande de modification a été envoyée pour validation.",
         ephemeral=True
     )
+
+
 @tree.command(
     name="id",
     description="Rechercher une carte d'identité"
