@@ -387,7 +387,7 @@ async def supprimerid(
 
     if not data:
         await interaction.response.send_message(
-            "❌ Aucune carte d'identité trouvée.",
+            "Aucune carte d'identité trouvée.",
             ephemeral=True
         )
         return
@@ -399,7 +399,7 @@ async def supprimerid(
     conn.commit()
 
     await interaction.response.send_message(
-        f"✅ La carte d'identité de **{pseudo_roblox}** a été supprimée.",
+        f"La carte d'identité de **{pseudo_roblox}** a été supprimée.",
         ephemeral=True
     )
 
@@ -426,7 +426,7 @@ async def modifierid(
 
     if not cursor.fetchone():
         await interaction.response.send_message(
-            "❌ Aucune carte d'identité trouvée.",
+            "Aucune carte d'identité trouvée.",
             ephemeral=True
         )
         return
@@ -456,7 +456,7 @@ async def modifierid(
     conn.commit()
 
     await interaction.response.send_message(
-        f"✅ La carte d'identité de **{pseudo_roblox}** a été modifiée.",
+        f"La carte d'identité de **{pseudo_roblox}** a été modifiée.",
         ephemeral=True
     )
 @tree.command(
