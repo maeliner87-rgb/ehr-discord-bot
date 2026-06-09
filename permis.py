@@ -22,6 +22,13 @@ def setup_permis(tree, client, conn, cursor):
     """)
     conn.commit()
 
+    cursor.execute("""
+    ALTER TABLE permis
+    ADD COLUMN IF NOT EXISTS dernier_gain TEXT
+    """)
+
+    conn.commit()
+
     print("✅ TABLE PERMIS CRÉÉE")
 
     @tree.command(
