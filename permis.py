@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ui import View, Button
-
+from datetime import datetime
 
 def setup_permis(tree, client, conn, cursor):
 
@@ -88,7 +88,6 @@ def setup_permis(tree, client, conn, cursor):
     async def demandepermis(
         interaction: discord.Interaction,
         pseudo_roblox: str,
-        date_obtention: str,
         poteaux: int,
         trottoirs: int,
         feux_rouges: int,
@@ -96,7 +95,9 @@ def setup_permis(tree, client, conn, cursor):
         accidents: int
     ):
 
+        date_obtention = datetime.now().strftime("%d/%m/%Y")
+
         await interaction.response.send_message(
-            "🚧 Commande permis détectée.",
+            f"Date automatique : {date_obtention}",
             ephemeral=True
         )
