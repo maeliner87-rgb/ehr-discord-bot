@@ -80,3 +80,23 @@ def setup_permis(tree, client, conn, cursor):
                 embed=embed,
                 view=None
             )
+
+    @tree.command(
+        name="examenpermis",
+        description="Créer une demande de permis"
+    )
+    async def demandepermis(
+        interaction: discord.Interaction,
+        pseudo_roblox: str,
+        date_obtention: str,
+        poteaux: int,
+        trottoirs: int,
+        feux_rouges: int,
+        priorites: int,
+        accidents: int
+    ):
+
+        await interaction.response.send_message(
+            "🚧 Commande permis détectée.",
+            ephemeral=True
+        )
