@@ -20,6 +20,8 @@ def setup_permis(tree, client, conn, cursor):
     """)
     conn.commit()
 
+    print("✅ TABLE PERMIS CRÉÉE")
+
     @tree.command(
         name="examenpermis",
         description="Créer une demande de permis"
