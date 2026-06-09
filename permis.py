@@ -215,18 +215,43 @@ def setup_permis(tree, client, conn, cursor):
             (pseudo_roblox,)
         )
 
-        resultat = cursor.fetchone()
+        resultats = cursor.fetchall()
 
-        if not resultat:
+        if not resultats:
             await interaction.response.send_message(
                 "❌ Aucun permis trouvé pour ce joueur.",
                 ephemeral=True
             )
             return
 
-        nom, prenom, date_obtention, points, categorie, statut = resultat
+        nom = resultats[0][0]
+        prenom = resultats[0][1]
+        points = resultats[0][3]
+        statut = resultats[0][5]
 
-        embed = discord.Embed(
+        categories_text = ""
+
+        for ligne in resultats:
+
+            categorie = ligne[4]
+            date = ligne[2]
+
+            emoji = "📄"
+
+            if categorie == "Voiture":
+                emoji = "🚗"
+
+            elif categorie == "Moto":
+                emoji = "🏍️"
+
+            elif categorie == "Camion":
+                emoji = "🚛"
+
+            categories_text += (
+                f"{emoji} {categorie} - {date}\n"
+            )
+
+                embed = discord.Embed(
             title="📄 Permis de conduire",
             color=0x3498db
         )
@@ -235,8 +260,8 @@ def setup_permis(tree, client, conn, cursor):
             f"**Pseudo Roblox :** {pseudo_roblox}\n\n"
             f"**Nom :** {nom}\n"
             f"**Prénom :** {prenom}\n\n"
-            f"**Catégorie :** {categorie}\n"
-            f"**Date d'obtention :** {date_obtention}\n\n"
+            f"**Permis obtenus :**\n"
+            f"{categories_text}\n"
             f"**Points :** {points}/12\n"
             f"**Statut :** {statut}"
         )
