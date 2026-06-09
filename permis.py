@@ -97,7 +97,95 @@ def setup_permis(tree, client, conn, cursor):
 
         date_obtention = datetime.now().strftime("%d/%m/%Y")
 
+        note = 20
+
+        note -= poteaux * 2
+        note -= trottoirs * 2
+        note -= priorites * 3
+        note -= feux_rouges * 5
+
+        if note < 0:
+            note = 0
+
+        motifs = []
+
+        if poteaux > 0:
+            motifs.append(f"• {poteaux} poteau(x) touché(s)")
+
+        if trottoirs > 0:
+            motifs.append(f"• {trottoirs} trottoir(s) monté(s)")
+
+        if feux_rouges > 0:
+            motifs.append(f"• {feux_rouges} feu(x) rouge(s) grillé(s)")
+
+        if priorites > 0:
+            motifs.append(f"• {priorites} priorité(s) non respectée(s)")
+
+        if accidents > 0:
+            motifs.append(f"• {accidents} accident(s)")
+
+        motifs_text = "\n".join(motifs)
+
+        if not motifs_text:
+            motifs_text = "Aucune faute"
+
+        if accidents >= 1:
+            statut = "❌ Refusé"
+            raison = "Accident durant l'examen"
+
+        elif feux_rouges >= 2:
+            statut = "❌ Refusé"
+            raison = "Trop de feux rouges grillés"
+
+        elif note >= 12:
+            statut = "✅ Permis obtenu"
+            raison = None
+
+        else:
+            statut = "❌ Refusé"
+            raison = "Note insuffisante"
+
+        cursor.execute(
+            "SELECT nom, prenom FROM identites WHERE pseudo_roblox = %s",
+            (pseudo_roblox,)
+        )
+
+        identite = cursor.fetchone()
+
+        if not identite:
+            await interaction.response.send_message(
+                "Aucune carte d'identité trouvée pour ce joueur.",
+                ephemeral=True
+            )
+            return
+
+        nom = identite[0]
+        prenom = identite[1]
+
+        embed = discord.Embed(
+            title="📋 Résultat de l'examen du permis",
+            color=0x2ecc71 if "obtenu" in statut else 0xe74c3c
+        )
+
+        embed.description = (
+            f"**Pseudo Roblox**\n{pseudo_roblox}\n\n"
+            f"**Nom :** {nom}\n"
+            f"**Prénom :** {prenom}\n\n"
+            f"**Date :** {date_obtention}\n"
+            f"**Catégorie :** Voiture\n\n"
+            f"**Note :** {note}/20\n"
+            f"**Statut :** {statut}\n\n"
+            f"**Fautes constatées :**\n"
+            f"{motifs_text}"
+        )
+
+        if raison:
+            embed.add_field(
+                name="Motif du refus",
+                value=raison,
+                inline=False
+            )
+
         await interaction.response.send_message(
-            f"Date automatique : {date_obtention}",
-            ephemeral=True
+            embed=embed
         )
