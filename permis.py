@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from datetime import datetime
+from discord.ui import View, Button
 
 def setup_permis(tree, client, conn, cursor):
 
@@ -268,4 +269,128 @@ def setup_permis(tree, client, conn, cursor):
 
         await interaction.response.send_message(
             embed=embed
+        )
+
+    class PermisListeView(View):
+
+        def __init__(self, donnees):
+            super().__init__(timeout=300)
+
+            self.donnees = donnees
+            self.page = 0
+            self.par_page = 5
+
+        def creer_embed(self):
+
+            debut = self.page * self.par_page
+            fin = debut + self.par_page
+
+            embed = discord.Embed(
+                title="📋 Liste des permis",
+                color=0x3498db
+            )
+
+            texte = ""
+
+            for i, ligne in enumerate(
+                self.donnees[debut:fin],
+                start=debut + 1
+            ):
+
+                pseudo = ligne[0]
+                nom = ligne[1]
+                prenom = ligne[2]
+                points = ligne[3]
+                categories = ligne[4]
+
+                texte += (
+                    f"**{i}. {pseudo}**\n"
+                    f"Nom : {nom}\n"
+                    f"Prénom : {prenom}\n"
+                    f"Permis : {categories}\n"
+                    f"Points : {points}/12\n\n"
+                )
+
+            embed.description = texte
+
+            total_pages = (
+                len(self.donnees) - 1
+            ) // self.par_page + 1
+
+            embed.set_footer(
+                text=f"Page {self.page + 1}/{total_pages}"
+            )
+
+            return embed
+
+        @discord.ui.button(label="⬅️")
+        async def precedent(
+            self,
+            interaction: discord.Interaction,
+            button: Button
+        ):
+
+            if self.page > 0:
+                self.page -= 1
+
+            await interaction.response.edit_message(
+                embed=self.creer_embed(),
+                view=self
+            )
+
+        @discord.ui.button(label="➡️")
+        async def suivant(
+            self,
+            interaction: discord.Interaction,
+            button: Button
+        ):
+
+            total_pages = (
+                len(self.donnees) - 1
+            ) // self.par_page
+
+            if self.page < total_pages:
+                self.page += 1
+
+            await interaction.response.edit_message(
+                embed=self.creer_embed(),
+                view=self
+            )
+
+    @tree.command(
+        name="listepermis",
+        description="Afficher tous les permis"
+    )
+    async def listepermis(
+        interaction: discord.Interaction
+    ):
+
+        cursor.execute("""
+            SELECT
+                pseudo_roblox,
+                nom,
+                prenom,
+                MAX(points),
+                GROUP_CONCAT(categorie, ', ')
+            FROM permis
+            GROUP BY
+                pseudo_roblox,
+                nom,
+                prenom
+            ORDER BY nom
+        """)
+
+        donnees = cursor.fetchall()
+
+        if not donnees:
+            await interaction.response.send_message(
+                "Aucun permis enregistré."
+            )
+            return
+
+        view = PermisListeView(donnees)
+
+        await interaction.response.send_message(
+            embed=view.creer_embed(),
+            view=view
         )
