@@ -252,7 +252,7 @@ def setup_permis(tree, client, conn, cursor):
             )
 
         embed = discord.Embed(
-            title="Permis de conduire",
+            title="📄 Permis de conduire",
             color=0x3498db
         )
 
