@@ -134,6 +134,8 @@ def setup_permis(tree, client, conn, cursor):
 
         if "obtenu" in statut:
 
+        if "obtenu" in statut:
+
             cursor.execute("""
                 INSERT INTO permis (
                     pseudo_roblox,
@@ -158,12 +160,16 @@ def setup_permis(tree, client, conn, cursor):
                 nom,
                 prenom,
                 date_obtention,
-                note,
+                6,
                 categorie.value,
                 "Valide"
             ))
 
             conn.commit()
+
+        await interaction.response.send_message(
+            embed=embed
+        )
 
         await interaction.response.send_message(
             embed=embed
