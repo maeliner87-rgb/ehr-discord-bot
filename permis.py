@@ -12,6 +12,7 @@ def setup_permis(tree, client, conn, cursor):
         prenom TEXT,
         date_obtention TEXT,
         points INTEGER,
+        dernier_gain TEXT,
         categorie TEXT,
         statut TEXT,
         salon_demande BIGINT,
@@ -164,16 +165,18 @@ def setup_permis(tree, client, conn, cursor):
                     prenom,
                     date_obtention,
                     points,
+                    dernier_gain,
                     categorie,
                     statut
                 )
-                VALUES (%s,%s,%s,%s,%s,%s,%s)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
                 ON CONFLICT (pseudo_roblox, categorie)
                 DO UPDATE SET
                     nom = EXCLUDED.nom,
                     prenom = EXCLUDED.prenom,
                     date_obtention = EXCLUDED.date_obtention,
                     points = EXCLUDED.points,
+                    dernier_gain = EXCLUDED.dernier_gain,
                     categorie = EXCLUDED.categorie,
                     statut = EXCLUDED.statut
             """, (
@@ -182,6 +185,7 @@ def setup_permis(tree, client, conn, cursor):
                 prenom,
                 date_obtention,
                 6,
+                date_obtention,
                 categorie.value,
                 "Valide"
             ))
