@@ -5,15 +5,17 @@ import os
 import aiohttp
 from discord.ui import View, Button
 from datetime import datetime
+from permis import setup_permis
 
 intents = discord.Intents.default()
 
 client = discord.Client(intents=intents)
 tree = app_commands.CommandTree(client)
-    
-# Base de données
+
 conn = psycopg2.connect(os.getenv("DATABASE_URL"))
 cursor = conn.cursor()
+
+setup_permis(tree, client, conn, cursor)
 
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS identites (
