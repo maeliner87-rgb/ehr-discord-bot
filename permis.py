@@ -79,19 +79,19 @@ def setup_permis(tree, client, conn, cursor):
             motifs_text = "Aucune faute"
 
         if accidents >= 1:
-            statut = "❌ Refusé"
+            statut = "Refusé"
             raison = "Accident durant l'examen"
 
         elif feux_rouges >= 2:
-            statut = "❌ Refusé"
+            statut = "Refusé"
             raison = "Trop de feux rouges grillés"
 
         elif note >= 12:
-            statut = "✅ Permis obtenu"
+            statut = "Permis obtenu"
             raison = None
 
         else:
-            statut = "❌ Refusé"
+            statut = "Refusé"
             raison = "Note insuffisante"
 
         cursor.execute(
@@ -125,13 +125,13 @@ def setup_permis(tree, client, conn, cursor):
 
         if permis_existant:
             await interaction.response.send_message(
-                f"❌ Ce joueur possède déjà le permis {categorie.value}.",
+                f"Ce joueur possède déjà le permis {categorie.value}.",
                 ephemeral=True
             )
             return
 
         embed = discord.Embed(
-            title="📋 Résultat de l'examen du permis",
+            title="Résultat de l'examen du permis",
             color=0x2ecc71 if "obtenu" in statut else 0xe74c3c
         )
 
@@ -219,7 +219,7 @@ def setup_permis(tree, client, conn, cursor):
 
         if not resultats:
             await interaction.response.send_message(
-                "❌ Aucun permis trouvé pour ce joueur.",
+                "Aucun permis trouvé pour ce joueur.",
                 ephemeral=True
             )
             return
@@ -239,20 +239,20 @@ def setup_permis(tree, client, conn, cursor):
             emoji = "📄"
 
             if categorie == "Voiture":
-                emoji = "🚗"
+                emoji = ""
 
             elif categorie == "Moto":
-                emoji = "🏍️"
+                emoji = ""
 
             elif categorie == "Camion":
-                emoji = "🚛"
+                emoji = ""
 
             categories_text += (
                 f"{emoji} {categorie} - {date}\n"
             )
 
         embed = discord.Embed(
-            title="📄 Permis de conduire",
+            title="Permis de conduire",
             color=0x3498db
         )
 
