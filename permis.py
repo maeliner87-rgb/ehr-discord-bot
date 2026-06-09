@@ -134,8 +134,6 @@ def setup_permis(tree, client, conn, cursor):
 
         if "obtenu" in statut:
 
-        if "obtenu" in statut:
-
             cursor.execute("""
                 INSERT INTO permis (
                     pseudo_roblox,
@@ -169,6 +167,56 @@ def setup_permis(tree, client, conn, cursor):
 
         await interaction.response.send_message(
             embed=embed
+        )
+
+    @tree.command(
+        name="permis",
+        description="Consulter un permis"
+    )
+    async def permis(
+        interaction: discord.Interaction,
+        pseudo_roblox: str
+    ):
+
+        cursor.execute(
+            """
+            SELECT
+                nom,
+                prenom,
+                date_obtention,
+                points,
+                categorie,
+                statut
+            FROM permis
+            WHERE pseudo_roblox = %s
+            """,
+            (pseudo_roblox,)
+        )
+
+        resultat = cursor.fetchone()
+
+        if not resultat:
+            await interaction.response.send_message(
+                "❌ Aucun permis trouvé pour ce joueur.",
+                ephemeral=True
+            )
+            return
+
+        nom, prenom, date_obtention, points, categorie, statut = resultat
+
+        embed = discord.Embed(
+            title="📄 Permis de conduire",
+            color=0x3498db
+        )
+
+        embed.description = (
+            f"**Pseudo Roblox :** {pseudo_roblox}\n\n"
+            f"**Nom :** {nom}\n"
+            f"**Prénom :** {prenom}\n\n"
+            f"**Catégorie :** {categorie}\n"
+            f"**Date d'obtention :** {date_obtention}\n\n"
+            f"**Points :** {points}/12\n"
+            f"**Statut :** {statut}"
         )
 
         await interaction.response.send_message(
