@@ -222,6 +222,81 @@ def setup_permis(tree, client, conn, cursor):
 
         resultats = cursor.fetchall()
 
+        # SYSTEME DE RECUPERATION DES POINTS
+
+        for ligne in resultats:
+
+            points = ligne[3]
+
+            cursor.execute(
+                """
+                SELECT dernier_gain
+                FROM permis
+                WHERE pseudo_roblox = %s
+                AND categorie = %s
+                """,
+                (pseudo_roblox, ligne[4])
+            )
+
+            dernier_gain = cursor.fetchone()[0]
+
+            if dernier_gain:
+
+                derniere_date = datetime.strptime(
+                    dernier_gain,
+                    "%d/%m/%Y"
+                )
+
+                aujourd_hui = datetime.now()
+
+                jours = (
+                    aujourd_hui - derniere_date
+                ).days
+
+                points_a_gagner = jours // 7
+
+                if points_a_gagner > 0:
+
+                    nouveaux_points = min(
+                        points + points_a_gagner,
+                        12
+                    )
+
+                    cursor.execute(
+                        """
+                        UPDATE permis
+                        SET points = %s,
+                            dernier_gain = %s
+                        WHERE pseudo_roblox = %s
+                        AND categorie = %s
+                        """,
+                        (
+                            nouveaux_points,
+                            aujourd_hui.strftime("%d/%m/%Y"),
+                            pseudo_roblox,
+                            ligne[4]
+                        )
+                    )
+
+        conn.commit()
+
+        cursor.execute(
+            """
+            SELECT
+                nom,
+                prenom,
+                date_obtention,
+                points,
+                categorie,
+                statut
+            FROM permis
+            WHERE pseudo_roblox = %s
+            """,
+            (pseudo_roblox,)
+        )
+
+        resultats = cursor.fetchall()
+
         if not resultats:
             await interaction.response.send_message(
                 "Aucun permis trouvé pour ce joueur.",
