@@ -247,11 +247,11 @@ def setup_permis(tree, client, conn, cursor):
             elif categorie == "Camion":
                 emoji = "🚛"
 
-            categories_text += (
-                f"{emoji} {categorie} - {date}\n"
-            )
+        categories_text += (
+            f"{emoji} {categorie} - {date}\n"
+        )
 
-                embed = discord.Embed(
+        embed = discord.Embed(
             title="📄 Permis de conduire",
             color=0x3498db
         )
