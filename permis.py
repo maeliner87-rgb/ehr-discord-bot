@@ -1,6 +1,5 @@
 import discord
 from discord import app_commands
-from discord.ui import View, Button
 from datetime import datetime
 
 def setup_permis(tree, client, conn, cursor):
@@ -20,74 +19,21 @@ def setup_permis(tree, client, conn, cursor):
     """)
     conn.commit()
 
-
-    class ValidationPermisView(View):
-        def __init__(self, pseudo_roblox):
-            super().__init__(timeout=None)
-
-            self.pseudo_roblox = pseudo_roblox
-
-            accepter = Button(
-                label="✅ Accepter",
-                style=discord.ButtonStyle.green
-            )
-
-            refuser = Button(
-                label="❌ Refuser",
-                style=discord.ButtonStyle.red
-            )
-
-            accepter.callback = self.accepter
-            refuser.callback = self.refuser
-
-            self.add_item(accepter)
-            self.add_item(refuser)
-
-        async def accepter(self, interaction: discord.Interaction):
-
-            cursor.execute(
-                "UPDATE permis SET valide = 1 WHERE pseudo_roblox = %s",
-                (self.pseudo_roblox,)
-            )
-
-            conn.commit()
-
-            embed = interaction.message.embeds[0]
-
-            embed.title = "✅ Permis accepté"
-            embed.color = 0x2ecc71
-
-            await interaction.response.edit_message(
-                embed=embed,
-                view=None
-            )
-
-        async def refuser(self, interaction: discord.Interaction):
-
-            cursor.execute(
-                "DELETE FROM permis WHERE pseudo_roblox = %s",
-                (self.pseudo_roblox,)
-            )
-
-            conn.commit()
-
-            embed = interaction.message.embeds[0]
-
-            embed.title = "❌ Permis refusé"
-            embed.color = 0xe74c3c
-
-            await interaction.response.edit_message(
-                embed=embed,
-                view=None
-            )
-
     @tree.command(
         name="examenpermis",
         description="Créer une demande de permis"
     )
+    @app_commands.choices(
+        categorie=[
+            app_commands.Choice(name="Voiture", value="Voiture"),
+            app_commands.Choice(name="Camion", value="Camion"),
+            app_commands.Choice(name="Moto", value="Moto")
+        ]
+    )
     async def demandepermis(
         interaction: discord.Interaction,
         pseudo_roblox: str,
+        categorie: app_commands.Choice[str],
         poteaux: int,
         trottoirs: int,
         feux_rouges: int,
@@ -172,7 +118,7 @@ def setup_permis(tree, client, conn, cursor):
             f"**Nom :** {nom}\n"
             f"**Prénom :** {prenom}\n\n"
             f"**Date :** {date_obtention}\n"
-            f"**Catégorie :** Voiture\n\n"
+            f"**Catégorie :** {categorie.value}\n\n"
             f"**Note :** {note}/20\n"
             f"**Statut :** {statut}\n\n"
             f"**Fautes constatées :**\n"
@@ -185,6 +131,39 @@ def setup_permis(tree, client, conn, cursor):
                 value=raison,
                 inline=False
             )
+
+        if "obtenu" in statut:
+
+            cursor.execute("""
+                INSERT INTO permis (
+                    pseudo_roblox,
+                    nom,
+                    prenom,
+                    date_obtention,
+                    points,
+                    categorie,
+                    statut
+                )
+                VALUES (%s,%s,%s,%s,%s,%s,%s)
+                ON CONFLICT (pseudo_roblox)
+                DO UPDATE SET
+                    nom = EXCLUDED.nom,
+                    prenom = EXCLUDED.prenom,
+                    date_obtention = EXCLUDED.date_obtention,
+                    points = EXCLUDED.points,
+                    categorie = EXCLUDED.categorie,
+                    statut = EXCLUDED.statut
+            """, (
+                pseudo_roblox,
+                nom,
+                prenom,
+                date_obtention,
+                note,
+                categorie.value,
+                "Valide"
+            ))
+
+            conn.commit()
 
         await interaction.response.send_message(
             embed=embed
