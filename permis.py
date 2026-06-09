@@ -371,7 +371,7 @@ def setup_permis(tree, client, conn, cursor):
                 nom,
                 prenom,
                 MAX(points),
-                GROUP_CONCAT(categorie, ', ')
+                STRING_AGG(categorie, ', ')
             FROM permis
             GROUP BY
                 pseudo_roblox,
