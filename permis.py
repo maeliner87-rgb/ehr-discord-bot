@@ -6,7 +6,7 @@ def setup_permis(tree, client, conn, cursor):
 
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS permis (
-        pseudo_roblox TEXT PRIMARY KEY,
+        pseudo_roblox TEXT,
         nom TEXT,
         prenom TEXT,
         date_obtention TEXT,
@@ -14,7 +14,8 @@ def setup_permis(tree, client, conn, cursor):
         categorie TEXT,
         statut TEXT,
         salon_demande BIGINT,
-        valide INTEGER DEFAULT 0
+        valide INTEGER DEFAULT 0,
+        PRIMARY KEY (pseudo_roblox, categorie)
     )
     """)
     conn.commit()
@@ -108,6 +109,25 @@ def setup_permis(tree, client, conn, cursor):
         nom = identite[0]
         prenom = identite[1]
 
+        cursor.execute(
+            """
+            SELECT 1
+            FROM permis
+            WHERE pseudo_roblox = %s
+            AND categorie = %s
+            """,
+            (pseudo_roblox, categorie.value)
+        )
+
+        permis_existant = cursor.fetchone()
+
+        if permis_existant:
+            await interaction.response.send_message(
+                f"❌ Ce joueur possède déjà le permis {categorie.value}.",
+                ephemeral=True
+            )
+            return
+
         embed = discord.Embed(
             title="📋 Résultat de l'examen du permis",
             color=0x2ecc71 if "obtenu" in statut else 0xe74c3c
@@ -145,7 +165,7 @@ def setup_permis(tree, client, conn, cursor):
                     statut
                 )
                 VALUES (%s,%s,%s,%s,%s,%s,%s)
-                ON CONFLICT (pseudo_roblox)
+                ON CONFLICT (pseudo_roblox, categorie)
                 DO UPDATE SET
                     nom = EXCLUDED.nom,
                     prenom = EXCLUDED.prenom,
