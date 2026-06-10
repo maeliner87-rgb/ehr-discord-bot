@@ -470,7 +470,7 @@ async def creeridentite(
 
     conn.commit()
 
-    salon = client.get_channel(1513017794214498414)
+    salon = client.get_channel(1514159386128420884)
 
     embed_validation = discord.Embed(
         title="📋 Nouvelle demande de carte d'identité",
@@ -630,7 +630,7 @@ async def modifierid(
 
     conn.commit()
 
-    salon = client.get_channel(1513017794214498414)
+    salon = client.get_channel(1514159386128420884)
 
     embed = discord.Embed(
         title="📋 Demande de modification de carte d'identité",
