@@ -339,30 +339,44 @@ def setup_permis(tree, client, conn, cursor):
 
         nom = resultats[0][0]
         prenom = resultats[0][1]
-        points = resultats[0][3]
-        statut = resultats[0][5]
 
         categories_text = ""
 
         for ligne in resultats:
 
             categorie = ligne[4]
-            date = ligne[2]
-
-            emoji = "📄"
+            points = ligne[3]
+            statut = ligne[5]
 
             if categorie == "Voiture":
-                emoji = ""
+                emoji = "🚗"
 
             elif categorie == "Moto":
-                emoji = ""
+                emoji = "🏍️"
 
             elif categorie == "Camion":
-                emoji = ""
+                emoji = "🚛"
 
-            categories_text += (
-                f"{emoji} {categorie} - {date}\n"
-            )
+            else:
+                emoji = "📄"
+
+            if statut == "Suspendu":
+
+                categories_text += (
+                    f"{emoji} {categorie} - 🔴 Suspendu\n"
+                )
+
+            elif statut == "Interdit de conduire":
+
+                categories_text += (
+                    f"{emoji} {categorie} - ⛔ Interdit de conduire\n"
+                )
+
+            else:
+
+                categories_text += (
+                    f"{emoji} {categorie} - {points}/12 points\n"
+                )
 
         embed = discord.Embed(
             title="📄 Permis de conduire",
@@ -373,10 +387,8 @@ def setup_permis(tree, client, conn, cursor):
             f"**Pseudo Roblox :** {pseudo_roblox}\n\n"
             f"**Nom :** {nom}\n"
             f"**Prénom :** {prenom}\n\n"
-            f"**Permis obtenus :**\n"
-            f"{categories_text}\n"
-            f"**Points :** {points}/12\n"
-            f"**Statut :** {statut}"
+            f"**Permis :**\n"
+            f"{categories_text}"
         )
 
         await interaction.response.send_message(
@@ -611,7 +623,7 @@ def setup_permis(tree, client, conn, cursor):
 
         if not permis:
             await interaction.response.send_message(
-                "❌ Aucun permis trouvé.",
+                "Aucun permis trouvé.",
                 ephemeral=True
             )
             return
