@@ -685,7 +685,7 @@ def setup_permis(tree, client, conn, cursor):
         conn.commit()
 
         salon = client.get_channel(
-            1513017794214498414
+            1514159386128420884
         )
 
         if salon:
@@ -782,7 +782,7 @@ def setup_permis(tree, client, conn, cursor):
         conn.commit()
 
         salon = client.get_channel(
-            1513017794214498414
+            1514159386128420884
         )
 
         if salon:
