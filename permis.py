@@ -375,7 +375,8 @@ def setup_permis(tree, client, conn, cursor):
             f"**Nom :** {nom}\n"
             f"**Prénom :** {prenom}\n\n"
             f"**Permis :**\n"
-            f"{categories_text}"
+            f"{categories_text}\n"
+            f"**Points :** {points}/12"
         )
 
         await interaction.response.send_message(
