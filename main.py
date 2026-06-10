@@ -422,7 +422,7 @@ async def creeridentite(
 
     if user_data is None:
         await interaction.response.send_message(
-            "❌ Ce pseudo Roblox n'existe pas.",
+            "Ce pseudo Roblox n'existe pas.",
             ephemeral=True
         )
         return
@@ -434,7 +434,7 @@ async def creeridentite(
 
     if cursor.fetchone():
         await interaction.response.send_message(
-            "❌ Une carte d'identité existe déjà pour ce pseudo Roblox.",
+            "Une carte d'identité existe déjà pour ce pseudo Roblox.",
             ephemeral=True
         )
         return
