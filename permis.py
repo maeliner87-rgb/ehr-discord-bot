@@ -122,22 +122,48 @@ def setup_permis(tree, client, conn, cursor):
 
         cursor.execute(
             """
-            SELECT 1
+            SELECT statut
             FROM permis
             WHERE pseudo_roblox = %s
             AND categorie = %s
             """,
-            (pseudo_roblox, categorie.value)
+            (
+                pseudo_roblox,
+                categorie.value
+            )
         )
 
         permis_existant = cursor.fetchone()
 
         if permis_existant:
-            await interaction.response.send_message(
-                f"Ce joueur possède déjà le permis {categorie.value}.",
-                ephemeral=True
+
+            if permis_existant[0] == "Interdit de conduire":
+                await interaction.response.send_message(
+                    "❌ Ce joueur est interdit de conduire.",
+                    ephemeral=True
+                )
+                return
+
+            if permis_existant[0] != "Suspendu":
+                await interaction.response.send_message(
+                    f"Ce joueur possède déjà le permis {categorie.value}.",
+                    ephemeral=True
+                )
+                return
+
+            cursor.execute(
+                """
+                DELETE FROM permis
+                WHERE pseudo_roblox = %s
+                AND categorie = %s
+                """,
+                (
+                    pseudo_roblox,
+                    categorie.value
+                )
             )
-            return
+
+            conn.commit()
 
         embed = discord.Embed(
             title="Résultat de l'examen du permis",
@@ -509,26 +535,6 @@ def setup_permis(tree, client, conn, cursor):
 
         cursor.execute(
             """
-            SELECT 1
-            FROM permis
-            WHERE pseudo_roblox = %s
-            AND categorie = %s
-            """,
-            (
-                pseudo_roblox,
-                categorie.value
-            )
-        )
-
-        if not cursor.fetchone():
-            await interaction.response.send_message(
-                f"❌ {pseudo_roblox} ne possède pas le permis {categorie.value}.",
-                ephemeral=True
-            )
-            return
-
-        cursor.execute(
-            """
             DELETE FROM permis
             WHERE pseudo_roblox = %s
             AND categorie = %s
@@ -543,4 +549,159 @@ def setup_permis(tree, client, conn, cursor):
 
         await interaction.response.send_message(
             f"✅ Le permis {categorie.value} de **{pseudo_roblox}** a été supprimé."
+        )
+
+    @tree.command(
+        name="sanctionpermis",
+        description="Sanctionner un permis"
+    )
+    @app_commands.choices(
+        categorie=[
+            app_commands.Choice(
+                name="Voiture",
+                value="Voiture"
+            ),
+            app_commands.Choice(
+                name="Camion",
+                value="Camion"
+            ),
+            app_commands.Choice(
+                name="Moto",
+                value="Moto"
+            )
+        ],
+        sanction=[
+            app_commands.Choice(
+                name="Retrait de points",
+                value="Retrait de points"
+            ),
+            app_commands.Choice(
+                name="Suspension",
+                value="Suspendu"
+            ),
+            app_commands.Choice(
+                name="Interdiction de conduire",
+                value="Interdit de conduire"
+            )
+        ]
+    )
+    async def sanctionpermis(
+        interaction: discord.Interaction,
+        pseudo_roblox: str,
+        categorie: app_commands.Choice[str],
+        sanction: app_commands.Choice[str],
+        motif: str,
+        points: int = 0
+    ):
+
+        cursor.execute(
+            """
+            SELECT points, statut
+            FROM permis
+            WHERE pseudo_roblox = %s
+            AND categorie = %s
+            """,
+            (
+                pseudo_roblox,
+                categorie.value
+            )
+        )
+
+        permis = cursor.fetchone()
+
+        if not permis:
+            await interaction.response.send_message(
+                "❌ Aucun permis trouvé.",
+                ephemeral=True
+            )
+            return
+
+        points_actuels = permis[0]
+
+        if sanction.value == "Retrait de points":
+
+            nouveaux_points = max(
+                points_actuels - points,
+                0
+            )
+
+            statut = (
+                "Suspendu"
+                if nouveaux_points == 0
+                else "Valide"
+            )
+
+            cursor.execute(
+                """
+                UPDATE permis
+                SET points = %s,
+                    statut = %s
+                WHERE pseudo_roblox = %s
+                AND categorie = %s
+                """,
+                (
+                    nouveaux_points,
+                    statut,
+                    pseudo_roblox,
+                    categorie.value
+                )
+            )
+
+            texte_sanction = (
+                f"Retrait de {points} point(s)\n"
+                f"Points restants : {nouveaux_points}/12"
+            )
+
+            if nouveaux_points == 0:
+                texte_sanction += (
+                    "\n⚠️ Le permis est désormais suspendu."
+                )
+
+        else:
+
+            cursor.execute(
+                """
+                UPDATE permis
+                SET statut = %s
+                WHERE pseudo_roblox = %s
+                AND categorie = %s
+                """,
+                (
+                    sanction.value,
+                    pseudo_roblox,
+                    categorie.value
+                )
+            )
+
+            texte_sanction = sanction.value
+
+        conn.commit()
+
+        salon = client.get_channel(
+            1513017794214498414
+        )
+
+        if salon:
+
+            embed = discord.Embed(
+                title="🚔 Sanction de permis",
+                color=0xe74c3c
+            )
+
+            embed.description = (
+                f"**Pseudo Roblox :** {pseudo_roblox}\n"
+                f"**Catégorie :** {categorie.value}\n\n"
+                f"**Sanction :**\n"
+                f"{texte_sanction}\n\n"
+                f"**Motif :**\n"
+                f"{motif}\n\n"
+                f"**Agent :** {interaction.user.mention}"
+            )
+
+            await salon.send(
+                embed=embed
+            )
+
+        await interaction.response.send_message(
+            "✅ Sanction appliquée."
         )
