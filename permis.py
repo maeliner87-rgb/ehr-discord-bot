@@ -339,45 +339,32 @@ def setup_permis(tree, client, conn, cursor):
 
         nom = resultats[0][0]
         prenom = resultats[0][1]
+        points = resultats[0][3]
 
         categories_text = ""
 
         for ligne in resultats:
 
             categorie = ligne[4]
-            points = ligne[3]
             statut = ligne[5]
-
-            if categorie == "Voiture":
-                emoji = "🚗"
-
-            elif categorie == "Moto":
-                emoji = "🏍️"
-
-            elif categorie == "Camion":
-                emoji = "🚛"
-
-            else:
-                emoji = "📄"
 
             if statut == "Suspendu":
 
                 categories_text += (
-                    f"{emoji} {categorie} - 🔴 Suspendu\n"
+                    f"{categorie} - SUSPENDU\n"
                 )
 
             elif statut == "Interdit de conduire":
 
                 categories_text += (
-                    f"{emoji} {categorie} - ⛔ Interdit de conduire\n"
+                    f"{categorie} - INTERDIT DE CONDUIRE\n"
                 )
 
             else:
 
                 categories_text += (
-                    f"{emoji} {categorie} - {points}/12 points\n"
+                    f"{categorie} - Valide\n"
                 )
-
         embed = discord.Embed(
             title="📄 Permis de conduire",
             color=0x3498db
@@ -560,7 +547,7 @@ def setup_permis(tree, client, conn, cursor):
         conn.commit()
 
         await interaction.response.send_message(
-            f"✅ Le permis {categorie.value} de **{pseudo_roblox}** a été supprimé."
+            f"Le permis {categorie.value} de **{pseudo_roblox}** a été supprimé."
         )
 
     @tree.command(
@@ -666,7 +653,7 @@ def setup_permis(tree, client, conn, cursor):
 
             if nouveaux_points == 0:
                 texte_sanction += (
-                    "\n⚠️ Le permis est désormais suspendu."
+                    "\nLe permis est désormais suspendu."
                 )
 
         else:
@@ -696,7 +683,7 @@ def setup_permis(tree, client, conn, cursor):
         if salon:
 
             embed = discord.Embed(
-                title="🚔 Sanction de permis",
+                title="Sanction de permis",
                 color=0xe74c3c
             )
 
@@ -715,5 +702,5 @@ def setup_permis(tree, client, conn, cursor):
             )
 
         await interaction.response.send_message(
-            "✅ Sanction appliquée."
+            "Sanction appliquée."
         )
