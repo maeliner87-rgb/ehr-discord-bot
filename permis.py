@@ -480,3 +480,67 @@ def setup_permis(tree, client, conn, cursor):
             embed=view.creer_embed(),
             view=view
         )
+
+    @tree.command(
+        name="supprimerpermis",
+        description="Supprimer un permis"
+    )
+    @app_commands.choices(
+        categorie=[
+            app_commands.Choice(
+                name="Voiture",
+                value="Voiture"
+            ),
+            app_commands.Choice(
+                name="Camion",
+                value="Camion"
+            ),
+            app_commands.Choice(
+                name="Moto",
+                value="Moto"
+            )
+        ]
+    )
+    async def supprimerpermis(
+        interaction: discord.Interaction,
+        pseudo_roblox: str,
+        categorie: app_commands.Choice[str]
+    ):
+
+        cursor.execute(
+            """
+            SELECT 1
+            FROM permis
+            WHERE pseudo_roblox = %s
+            AND categorie = %s
+            """,
+            (
+                pseudo_roblox,
+                categorie.value
+            )
+        )
+
+        if not cursor.fetchone():
+            await interaction.response.send_message(
+                f"❌ {pseudo_roblox} ne possède pas le permis {categorie.value}.",
+                ephemeral=True
+            )
+            return
+
+        cursor.execute(
+            """
+            DELETE FROM permis
+            WHERE pseudo_roblox = %s
+            AND categorie = %s
+            """,
+            (
+                pseudo_roblox,
+                categorie.value
+            )
+        )
+
+        conn.commit()
+
+        await interaction.response.send_message(
+            f"✅ Le permis {categorie.value} de **{pseudo_roblox}** a été supprimé."
+        )
