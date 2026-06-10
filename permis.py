@@ -582,6 +582,10 @@ def setup_permis(tree, client, conn, cursor):
             app_commands.Choice(
                 name="Interdiction de conduire",
                 value="Interdit de conduire"
+            ),
+            app_commands.Choice(
+                name="Lever l'interdiction",
+                value="Valide"
             )
         ]
     )
