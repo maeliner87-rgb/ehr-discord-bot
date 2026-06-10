@@ -629,27 +629,30 @@ def setup_permis(tree, client, conn, cursor):
                 0
             )
 
-            statut = (
-                "Suspendu"
-                if nouveaux_points == 0
-                else "Valide"
-            )
-
             cursor.execute(
                 """
                 UPDATE permis
-                SET points = %s,
-                    statut = %s
+                SET points = %s
                 WHERE pseudo_roblox = %s
-                AND categorie = %s
                 """,
                 (
                     nouveaux_points,
-                    statut,
-                    pseudo_roblox,
-                    categorie.value
+                    pseudo_roblox
                 )
             )
+
+            if nouveaux_points == 0:
+
+                cursor.execute(
+                    """
+                    UPDATE permis
+                    SET statut = 'Suspendu'
+                    WHERE pseudo_roblox = %s
+                    """,
+                    (
+                        pseudo_roblox,
+                    )
+                )
 
             texte_sanction = (
                 f"Retrait de {points} point(s)\n"
@@ -708,4 +711,101 @@ def setup_permis(tree, client, conn, cursor):
 
         await interaction.response.send_message(
             "Sanction appliquée."
+        )
+    @tree.command(
+        name="ajouterpoints",
+        description="Ajouter des points à un permis"
+    )
+    @app_commands.choices(
+        categorie=[
+            app_commands.Choice(
+                name="Voiture",
+                value="Voiture"
+            ),
+            app_commands.Choice(
+                name="Camion",
+                value="Camion"
+            ),
+            app_commands.Choice(
+                name="Moto",
+                value="Moto"
+            )
+        ]
+    )
+    async def ajouterpoints(
+        interaction: discord.Interaction,
+        pseudo_roblox: str,
+        categorie: app_commands.Choice[str],
+        points: int,
+        motif: str
+    ):
+
+        cursor.execute(
+            """
+            SELECT points
+            FROM permis
+            WHERE pseudo_roblox = %s
+            AND categorie = %s
+            """,
+            (
+                pseudo_roblox,
+                categorie.value
+            )
+        )
+
+        permis = cursor.fetchone()
+
+        if not permis:
+            await interaction.response.send_message(
+                "❌ Aucun permis trouvé.",
+                ephemeral=True
+            )
+            return
+
+        nouveaux_points = min(
+            permis[0] + points,
+            12
+        )
+
+        cursor.execute(
+            """
+            UPDATE permis
+            SET points = %s
+            WHERE pseudo_roblox = %s
+            """,
+            (
+                nouveaux_points,
+                pseudo_roblox
+            )
+        )
+
+        conn.commit()
+
+        salon = client.get_channel(
+            1513017794214498414
+        )
+
+        if salon:
+
+            embed = discord.Embed(
+                title="✅ Ajout de points",
+                color=0x2ecc71
+            )
+
+            embed.description = (
+                f"**Pseudo Roblox :** {pseudo_roblox}\n"
+                f"**Catégorie :** {categorie.value}\n\n"
+                f"**Points ajoutés :** {points}\n"
+                f"**Total :** {nouveaux_points}/12\n\n"
+                f"**Motif :**\n"
+                f"{motif}\n\n"
+                f"**Agent :** {interaction.user.mention}"
+            )
+
+            await salon.send(
+                embed=embed
+            )
+
+        await interaction.response.send_message(
+            f"✅ {points} point(s) ajoutés. Total : {nouveaux_points}/12"
         )
