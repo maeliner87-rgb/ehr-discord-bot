@@ -427,6 +427,18 @@ async def creeridentite(
         )
         return
 
+    cursor.execute(
+        "SELECT * FROM identites WHERE LOWER(pseudo_roblox) = LOWER(%s)",
+        (pseudo_roblox,)
+    )
+
+    if cursor.fetchone():
+        await interaction.response.send_message(
+            "❌ Une carte d'identité existe déjà pour ce pseudo Roblox.",
+            ephemeral=True
+        )
+        return
+
     cursor.execute("""
     INSERT INTO identites (
         pseudo_discord,
@@ -442,18 +454,6 @@ async def creeridentite(
         valide
     )
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-    ON CONFLICT (pseudo_roblox)
-    DO UPDATE SET
-        pseudo_discord = EXCLUDED.pseudo_discord,
-        nom = EXCLUDED.nom,
-        prenom = EXCLUDED.prenom,
-        naissance = EXCLUDED.naissance,
-        ville_naissance = EXCLUDED.ville_naissance,
-        age = EXCLUDED.age,
-        sexe = EXCLUDED.sexe,
-        nationalite = EXCLUDED.nationalite,
-        salon_demande = EXCLUDED.salon_demande,
-        valide = 0
     """, (
         str(interaction.user),
         nom,
